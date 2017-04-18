@@ -1,33 +1,94 @@
-# History files
-.Rhistory
-.Rapp.history
+#读取数据
+horsecolic=read.table('C:\\Users\\an\\Desktop\\horsecolic.txt', na.string=c('?'))
+col.names=c('V1','V2','V3','V4','V5','V6','V7','V8','V9','V10','V11',
+            'V12','V13','V14','V15','V16','V17','V18','V19','V20','V21','V22',
+            'V23','V24','V25','V26','V27','V28')
 
-# Session Data files
-.RData
+#na.string=c('?'))
+#header=TRUE
+#分析摘要
+summary(horsecolic)
 
-# Example code in package build process
-*-Ex.R
+#数据可视
+install.packages("car")
+library(car)
 
-# Output files from R CMD build
-/*.tar.gz
+#绘制直方图
 
-# Output files from R CMD check
-/*.Rcheck/
+hist(as.numeric(horsecolic$V4),main = 'horsecolic$V4')
+mean(horsecolic$V4,na.rm=T)
 
-# RStudio files
-.Rproj.user/
+#绘制QQ图
+#install.packages("ggplot2")
+install.packages("distrMod")
+qqPlot(horsecolic$V4,,main='Norm QQ Plot of V4')
 
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
+#绘制盒图
+#ylab为设置y轴标题；
+#rug函数绘制变量的实际值，side=4表示绘制在图的右侧（1在下方，2在左侧，3在上方）；
+#abline函数绘制水平线，mean表示均值，na.rm=T指计算时不考虑NA值，lty=2设置线型为虚线。
+boxplot(horsecolic$V4,ylab='V4')
+rug(horsecolic$V4,side=4)
+abline(h=mean(horsecolic$V4,na.rm=T),lty=2)
 
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
-.httr-oauth
+hist(as.numeric(horsecolic$V5))
+qqPlot(horsecolic$V5,main='Norm QQ Plot of pluse')
+boxplot(horsecolic$V5,ylab='V5')
+rug(horsecolic$V5,side=4)
+abline(h=mean(horsecolic$V5,na.rm=T),lty=2)
 
-# knitr and R markdown default cache directories
-/*_cache/
-/cache/
+hist(as.numeric(horsecolic$V6))
+qqPlot(horsecolic$V6,main='Norm QQ Plot of V6')
+boxplot(horsecolic$V6,ylab='V6')
+rug(horsecolic$V6,side=4)
+abline(h=mean(horsecolic$V6,na.rm=T),lty=2)
 
-# Temporary files created by R markdown
-*.utf8.md
-*.knit.md
+
+hist(as.numeric(horsecolic$V9))
+qqPlot(horsecolic$V9,main='Norm QQ Plot of V9')
+boxplot(horsecolic$V9,ylab='V9')
+rug(horsecolic$V9,side=4)
+abline(h=mean(horsecolic$V9,na.rm=T),lty=2)
+
+
+
+hist(as.numeric(horsecolic$V11))
+qqPlot(horsecolic$V11,main='Norm QQ Plot of V11')
+boxplot(horsecolic$V11,ylab='V11')
+rug(horsecolic$V11,side=4)
+abline(h=mean(horsecolic$V11,na.rm=T),lty=2)
+
+
+
+#剔除缺失数据
+omitdata = na.omit(horsecolic)
+write.table(omitdata,'C:/Users/an/Desktop/horsecolic0.txt',
+            col.names = F,row.names = F, quote = F)
+
+#使用高频数据替换
+install.packages("DMwR")
+library(DMwR)
+preprocess2 = horsecolic[-manyNAs(horsecolic),]
+preprocess2 = centralImputation(preprocess2)
+write.table(preprocess2,'C:/Users/an/Desktop/horsecolic1.txt',
+            col.names = F,row.names = F, quote = F)
+
+#通过变量相关性填补缺失值
+            symnum(cor(horsecolic[,4:18],use='complete.obs'))
+            lm(formula=V4~V19, data=horsecolic)
+            preprocess3 = horsecolic[-manyNAs(horsecolic),]
+            fillV4 <- function(oP){
+            if(is.na(oP))
+            return(NA)
+            else return (42.897 + 1.293 * oP)
+            }
+            preprocess3[is.na(preprocess3$V4),'V4'] <- sapply(preprocess3[is.na(preprocess3$V4),'V19'],fillV4)
+            write.table(preprocess3,'C:/Users/an/Desktop/correlationDa.txt',
+            col.names = F,row.names = F, quote = F)
+            
+#通过数据对象之间的相似型来填补缺失值
+            preprocess4 = knnImputation(preprocess3,k=10,scale = T, meth = "median", distData = NULL)
+            write.table(preprocess4,'C:/Users/an/Desktop/horsecolic11.txt',
+            col.names = F,row.names = F, quote = F)
+
+            
